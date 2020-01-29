@@ -1,0 +1,162 @@
+import React, { useState, useEffect } from 'react'
+import './Todo.css'
+import complete from './assets/images/complete.svg'
+import incomplete from './assets/images/incomplete.svg'
+import x from './assets/images/x.png'
+
+//<--------------------------------------------------------------------------------------------------------------------->
+
+const CreateTask = ({ addTask }) => {
+  const [value, setValue] = useState('')
+  const handleSubmit = e => {
+    e.preventDefault()
+    if (!value) return
+
+    addTask(value)
+    setValue('')
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type='text'
+        className='input'
+        value={value}
+        placeholder='add a task'
+        onChange={e => setValue(e.target.value)}
+      />
+    </form>
+  )
+}
+
+//<--------------------------------------------------------------------------------------------------------------------->
+
+const Task = ({ task, index, completeTask, removeTask, handleDragStart, dragEnd, dragOver }) => {
+  return (
+    <div
+      className='task'
+      draggable
+      index={index}
+      onDragStart={e => handleDragStart(e)}
+      onDragEnd={e => dragEnd(e)}
+      onDragOver={e => dragOver(e)}
+      style={{ textDecoration: task.completed ? 'line-through' : '' }}
+    >
+      {task.title}
+      <button onClick={() => removeTask(index)}>
+        <img src={x} />
+      </button>
+      <button onClick={() => completeTask(index)}>
+        {task.completed ? <img src={complete} /> : <img src={incomplete} />}
+      </button>
+    </div>
+  )
+}
+
+//<--------------------------------------------------------------------------------------------------------------------->
+const Todo = () => {
+  const [tasks, setTasks] = useState(JSON.parse(localStorage.getItem('tasks')))
+  const [dragged, setDragged] = useState()  
+  let [over, setOver] = useState()
+
+
+  useEffect(() => {
+    localStorage.setItem('tasks', JSON.stringify(tasks))
+  }, [tasks])
+
+  const addTask = title => {
+    const newTasks = [...tasks, { title, completed: false }]
+    setTasks(newTasks)
+  }
+
+  const completeTask = index => {
+    const newTasks = [...tasks]
+    newTasks[index].completed
+      ? (newTasks[index].completed = false)
+      : (newTasks[index].completed = true)
+    setTasks(newTasks)
+  }
+
+  const removeTask = index => {
+    const newTasks = [...tasks]
+    newTasks.splice(index, 1)
+    setTasks([...newTasks])
+  }
+
+  const handleDragStart = e => {
+    setDragged(e.target)
+    console.log(dragged)
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/html', dragged)
+  }
+
+  const dragOver = (e) => {
+    e.preventDefault();
+    console.log(e)
+    dragged.style.display = "none";
+    // if(e.target.className === 'placeholder') return;
+    over = setOver(e.target);
+    console.log(over, 'eeeeee')
+    e.target.parentNode.insertBefore(dragged, e.target);
+  }
+
+  const dragEnd = e => {
+    const newTasks = [...tasks]
+    // newTasks.splice(dragged.getAttrubute('index'), 0)
+    console.log(dragged)
+
+    // console.log(dragged.getAttrubute('index'))
+  }
+  
+
+  return (
+    <div className='todo-container paper'>
+      <div className='header'>React Hooks for Fun and Profit</div>
+      <div className='tasks'>
+        <h3 className='task-header'>Todo</h3>
+        {tasks.map((task, index) =>
+          !task.completed ? (
+            <Task
+              task={task}
+              index={index}
+              key={index}
+              completeTask={completeTask}
+              removeTask={removeTask}
+              handleDragStart={handleDragStart}
+              dragEnd={dragEnd}
+              dragOver={dragOver}
+            />
+          ) : (
+            ''
+          )
+        )}
+      </div>
+
+      <div className='tasks'>
+        <h3 className='task-header'>Complete</h3>
+        {tasks.map((task, index) =>
+          task.completed ? (
+            <Task
+              task={task}
+              index={index}
+              key={index}
+              completeTask={completeTask}
+              removeTask={removeTask}
+              handleDragStart={handleDragStart}
+              dragEnd={dragEnd}
+            />
+          ) : (
+            ''
+          )
+        )}
+      </div>
+      <div className='create-task'>
+        <CreateTask addTask={addTask} />
+      </div>
+    </div>
+  )
+}
+
+export default Todo
+
+//<--------------------------------------------------------------------------------------------------------------------->
