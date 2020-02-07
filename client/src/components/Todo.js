@@ -78,7 +78,7 @@ const Todo = () => {
       completed: true
     }
   ]
-  const [tasks, setTasks] = useState(JSON.parse(localStorage.getItem('tasks')))
+  const [tasks, setTasks] = useState(stub)
   // const [tasks, setTasks] = useState(stub)
   // const [tasks, setTasks] = useState(axios.get('/api/getTasks', (res) => console.log(res)))
 
@@ -89,13 +89,13 @@ const Todo = () => {
   //   setData(result.data);
   // });
 
-  axios({
-    method: 'get',
-    url: '/api/getTasks',
-    data: stub
-  }).then(res => {
-    console.log(res)
-  })
+  // axios({
+  //   method: 'get',
+  //   url: '/api/getTasks',
+  //   data: stub
+  // }).then(res => {
+  //   console.log(res)
+  // })
 
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks))

@@ -7,4 +7,4 @@
 
   ReactDOM.render(<Todo />, document.getElementById('root'));
 
-  serviceWorker.unregister();
+  serviceWorker.register();
